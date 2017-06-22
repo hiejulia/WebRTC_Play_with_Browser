@@ -1,4 +1,4 @@
-const io = require('socket.io')(process.env.PORT || 3000);
+const io = require('socket.io')(5555);
 //save all users register
 const arrUserInfo = [];
 
@@ -23,3 +23,6 @@ io.on('connection',socket => {
         io.emit('USER_DISCONNECTED', socket.peerId);
     });
 })
+
+
+console.log('ok');

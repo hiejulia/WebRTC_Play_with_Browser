@@ -1,28 +1,20 @@
-const io = require('socket.io')(5555);
-//save all users register
+const io = require('socket.io')(process.env.PORT || 3000);
+
 const arrUserInfo = [];
 
-io.on('connection',socket => {
-    socket.on('USER_REGISTER',user => {
+io.on('connection', socket => {
+    socket.on('NGUOI_DUNG_DANG_KY', user => {
         const isExist = arrUserInfo.some(e => e.ten === user.ten);
         socket.peerId = user.peerId;
-        if (isExist) return socket.emit('REGISTER_FAILE');
-        //if ok
+        if (isExist) return socket.emit('DANG_KY_THAT_BAT');
         arrUserInfo.push(user);
-        socket.emit('ONLINE_USERS', arrUserInfo);
-        socket.broadcast.emit('NEW_USER', user);
+        socket.emit('DANH_SACH_ONLINE', arrUserInfo);
+        socket.broadcast.emit('CO_NGUOI_DUNG_MOI', user);
     });
 
-
-    //listen for disconnected
     socket.on('disconnect', () => {
-        //get the index from the arrUserInfo
         const index = arrUserInfo.findIndex(user => user.peerId === socket.peerId);
         arrUserInfo.splice(index, 1);
-        //emit disconnected
-        io.emit('USER_DISCONNECTED', socket.peerId);
+        io.emit('AI_DO_NGAT_KET_NOI', socket.peerId);
     });
-})
-
-
-console.log('ok');
+});

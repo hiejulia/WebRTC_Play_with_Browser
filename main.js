@@ -1,28 +1,25 @@
-const socket = io('http://localhost:5555');
+const socket = io('https://stream3005.herokuapp.com/');
 
 $('#div-chat').hide();
 
 let customConfig;
+//filter goes here
+var snapshotButton = document.querySelector('button#snapshot');
+var filterSelect = document.querySelector('select#filter');
 
-// $.ajax({
-//   url: "https://service.xirsys.com/ice",
-//   data: {
-//     ident: "vanpho",
-//     secret: "2b1c2dfe-4374-11e7-bd72-5a790223a9ce",
-//     domain: "vanpho93.github.io",
-//     application: "default",
-//     room: "default",
-//     secure: 1
-//   },
-//   success: function (data, status) {
-//     // data.d is where the iceServers object lives
-//     customConfig = data.d;
-//     console.log(customConfig);
-//   },
-//   async: false
-// });
+// Put variables in global scope to make them available to the browser console.
+var video1 = window.video = document.getElementById('localStream');
+var video2 = window.video = document.getElementById('remoteStream');
 
-socket.on('ONLINE_USERS', arrUserInfo => {
+
+//end filter goes here
+filterSelect.onchange = function() {
+  video1.className = filterSelect.value;
+  video2.className = filterSelect.value;
+};
+
+
+socket.on('DANH_SACH_ONLINE', arrUserInfo => {
     $('#div-chat').show();
     $('#div-dang-ky').hide();
 
@@ -31,17 +28,17 @@ socket.on('ONLINE_USERS', arrUserInfo => {
         $('#ulUser').append(`<li id="${peerId}">${ten}</li>`);
     });
 
-    socket.on('NEW_USER', user => {
+    socket.on('CO_NGUOI_DUNG_MOI', user => {
         const { ten, peerId } = user;
         $('#ulUser').append(`<li id="${peerId}">${ten}</li>`);
     });
 
-    socket.on('USER_DISCONNECTED', peerId => {
+    socket.on('AI_DO_NGAT_KET_NOI', peerId => {
         $(`#${peerId}`).remove();
     });
 });
 
-socket.on('REGISTER_FAILE', () => alert('Vui long chon username khac!'));
+socket.on('DANG_KY_THAT_BAT', () => alert('Vui long chon username khac!'));
 
 
 function openStream() {
@@ -58,13 +55,19 @@ function playStream(idVideoTag, stream) {
 // openStream()
 // .then(stream => playStream('localStream', stream));
 
-var peer = new Peer({key: 'vtbing6krkhjjor'});
+const peer = new Peer({ 
+    key: 'peerjs', 
+    host: 'mypeer3005.herokuapp.com', 
+    secure: true, 
+    port: 443, 
+    config: customConfig 
+});
 
 peer.on('open', id => {
     $('#my-peer').append(id);
     $('#btnSignUp').click(() => {
         const username = $('#txtUsername').val();
-        socket.emit('USER_REGISTER', { ten: username, peerId: id });
+        socket.emit('NGUOI_DUNG_DANG_KY', { ten: username, peerId: id });
     });
 });
 
